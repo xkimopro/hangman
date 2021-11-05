@@ -1,38 +1,54 @@
 package com.medialab.hangman;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.TreeMap;
+import java.util.Map;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import com.medialab.hangman.Exceptions.GameExceptions.*;
+
+class CharacterFrequencyComparator implements Comparator<Character> {
+    Map<Character, ArrayList<String>> base;
+
+    public CharacterFrequencyComparator(Map<Character, ArrayList<String>> base) {
+        this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with
+    // equals.
+    public int compare(Character a, Character b) {
+        if (base.get(a).size() >= base.get(b).size()) {
+            return -1;
+        } else {
+            return 1;
+        } // returning 0 would merge keys
+    }
+}
+
 
 public class Game {
     Dictionary dictionary;
+    int score, wrong_choices, word_size, wrong_choices_limit;
     String chosen_word;
-    int word_size;
     ArrayList<String> candidates;
-    ArrayList< HashMap< Character, ArrayList<String> > > position_maps;
+    ArrayList<LinkedHashMap<Character, ArrayList<String>>> position_maps;
+    ArrayList<Character> current_word;
 
-    public Game(Dictionary dictionary) {
-        this.dictionary = dictionary;
-        this.chosen_word = dictionary.pickWord();
-        this.word_size = this.chosen_word.length();
-        this.candidates = new ArrayList<String>(dictionary.getWords());
-        candidates.removeIf(e -> e.length() != word_size);
-
-
-
-        ArrayList< HashMap< Character, ArrayList<String> > > position_maps = new ArrayList< HashMap< Character, ArrayList<String> > >();
-
+    public void createPositionMaps() {
+        position_maps = new ArrayList<LinkedHashMap<Character, ArrayList<String>>>();
+        ArrayList<TreeMap<Character, ArrayList<String>>> tree_position_maps = new ArrayList<TreeMap<Character, ArrayList<String>>>();
         for (int pos = 0; pos < word_size; pos++) {
-
             HashMap<Character, ArrayList<String>> position_map = new HashMap<Character, ArrayList<String>>();
-            System.out.println("CHANGING index " + pos);
-
+            CharacterFrequencyComparator cfc = new CharacterFrequencyComparator(position_map);
+            TreeMap<Character, ArrayList<String>> position_map_sorted = new TreeMap<Character, ArrayList<String>>(cfc);
             for (String word : candidates) {
-
                 Character c = word.charAt(pos);
-                // System.out.println(c);
-
-                if (!position_map.containsKey(c)) { // if list doesnt exist at character c then create it and push first
-                                                    // word
+                if (!position_map.containsKey(c)) { // if list doesnt exist at character c then create it and push word
                     ArrayList<String> tmp = new ArrayList<String>();
                     tmp.add(word);
                     position_map.put(c, tmp);
@@ -41,20 +57,167 @@ public class Game {
                     tmp.add(word);
                 }
             }
-            
-            position_maps.add(position_map);
+            position_map_sorted.putAll(position_map);
+            tree_position_maps.add(position_map_sorted);
         }
 
-        // for (HashMap<Character, ArrayList<String>> hm : position_maps ) {
-        //     for (Character c : hm.keySet()) {
-        //         ArrayList<String> tmp = hm.get(c);
-        //         System.out.println("Character " + c + " " + tmp.toString());
-        //     }
-        // }
+        for (TreeMap<Character, ArrayList<String>> hm : tree_position_maps) {
+            LinkedHashMap<Character, ArrayList<String>> lhm = new LinkedHashMap<Character, ArrayList<String>>(hm);
+            position_maps.add(lhm);
+        }
+    }
+
+    public Game(Dictionary dictionary) {
+        this.dictionary = dictionary;
+        this.chosen_word = dictionary.pickWord();
+        this.word_size = this.chosen_word.length();
+        this.candidates = new ArrayList<String>(dictionary.getWords());
+        this.score = 0;
+        this.wrong_choices = 0;
+        this.wrong_choices_limit = 6;
+        current_word = new ArrayList<Character>();
+        for (int i = 0; i < chosen_word.length(); i++)
+            current_word.add('_');
+
+        candidates.removeIf(e -> e.length() != word_size);
+        createPositionMaps();
+    }
+
+    public void pickLetter(int index, Character choice) throws ChoiceException, ArithmeticException {
+
+        try {
+            if (index < 0 || index >= word_size)
+                throw new OutOfRangeException();
+            LinkedHashMap<Character, ArrayList<String>> lhm = position_maps.get(index);
+            for (Character letter : lhm.keySet()) {
+                if (letter == choice) {
+                    Character right_letter = chosen_word.charAt(index);
+                    Character previous = current_word.get(index);
+                    if (previous != '_')
+                        throw new LetterAlreadyFound();
+
+                    if (right_letter == choice)
+                        correctChoice(index, choice);
+                    else
+                        wrongChoice(index, choice);
+
+                    System.out.println(wrong_choices + " round ended");
+                    return;
+                }
+            }
+            throw new LetterException();
+        } catch (Exception e) {
+            throw e;
+        }
 
     }
 
-    public void findCandidates() {
+    public double calculatePropability(Character letter, LinkedHashMap<Character, ArrayList<String>> words_per_char) {
+        double prop = 0.0;
+        int total_words = 0;
+        int found_words = 0;
+        for (Character c : words_per_char.keySet()) {
+            if (c == letter)
+                found_words = words_per_char.get(c).size();
+            total_words += words_per_char.get(c).size();
+        }
+        prop = (double) found_words / (double) total_words;
+        return prop;
+    }
+
+    public int findScore(double propability) throws ArithmeticException {
+        if (propability >= 0.6 && propability <= 1)
+            return 5;
+        else if (propability < 0.6 && propability >= 0.4)
+            return 10;
+        else if (propability < 0.4 && propability >= 0.25)
+            return 15;
+        else if (propability < 0.25 && propability >= 0.0)
+            return 30;
+        else
+            throw new ArithmeticException("Incorrectly formatted propability");
+    }
+
+    public void correctChoice(int index, Character choice) throws ArithmeticException {
+        try {
+            LinkedHashMap<Character, ArrayList<String>> lhm = position_maps.get(index);
+            double propability = calculatePropability(choice, lhm);
+            int points = findScore(propability);
+            score += points;
+            ArrayList<String> bad_words = new ArrayList<String>();
+            for (Character c : lhm.keySet()) {
+                if (c != choice) {
+                    bad_words.addAll(lhm.get(c));
+                }
+            }
+            candidates.removeIf(e -> bad_words.contains(e));
+            createPositionMaps();
+            current_word.set(index, choice);
+
+        } catch (ArithmeticException e) {
+            throw e;
+        }
+        System.out.println("Correct choice!");
+        System.out.println("Score " + score);
+
+    }
+
+    public void wrongChoice(int index, Character choice) {
+        LinkedHashMap<Character, ArrayList<String>> lhm = position_maps.get(index);
+        ArrayList<String> bad_words = lhm.get(choice);
+        candidates.removeIf(e -> bad_words.contains(e));
+        createPositionMaps();
+        score -= 15;
+        if (score < 0)
+            score = 0;
+
+        wrong_choices+=1;
+        printSets();
+        System.out.println("Wrong choice!");
+        System.out.println("Score " + score);
+
+    }
+
+    public void printSets() {
+        for (int pos = 0; pos < word_size; pos++) {
+            System.out.println("Position " + (pos));
+            LinkedHashMap<Character, ArrayList<String>> lhm = position_maps.get(pos);
+            for (Character c : lhm.keySet()) {
+                System.out.println(c + " " + lhm.get(c).toString());
+
+            }
+
+        }
+    }
+
+    public void printCurrentWord(){
+        for (int i = 0; i <word_size; i++) {
+            System.out.print(current_word.get(i));
+        }
+        System.out.println();
+    }
+
+    public void startGame() throws Exception {
+
+        while (wrong_choices != wrong_choices_limit) {
+
+            try {
+                printSets();
+                System.out.println("Word is " + chosen_word);
+                System.out.print("Current word is ");
+                printCurrentWord(); 
+                BufferedReader bi = new BufferedReader(new InputStreamReader(System.in));
+
+                String[] input_strings = bi.readLine().split("\\s");
+                int ind = Integer.parseInt(input_strings[0]);
+                Character ch = input_strings[1].charAt(0);
+                pickLetter(ind, ch);
+
+            } catch (Exception e) {
+                throw e;
+            }
+
+        }
     }
 
 }

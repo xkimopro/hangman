@@ -90,7 +90,7 @@ public class Dictionary {
 
     public String pickWord() {
         int min = 0;
-        int max = words.size();
+        int max = words.size()-1;
         int random_index = (int) Math.floor(Math.random() * (max - min + 1) + min);
         return words.get(random_index);
 
