@@ -33,7 +33,7 @@ class CharacterFrequencyComparator implements Comparator<Character> {
 
 public class Game {
     Dictionary dictionary;
-    int score, wrong_choices, word_size, wrong_choices_limit;
+    int score, wrong_choices, word_size, wrong_choices_limit, choices;
     String chosen_word;
     ArrayList<String> candidates;
     ArrayList<LinkedHashMap<Character, ArrayList<String>>> position_maps;
@@ -73,6 +73,7 @@ public class Game {
         this.word_size = this.chosen_word.length();
         this.candidates = new ArrayList<String>(dictionary.getWords());
         this.score = 0;
+        this.choices = 0;
         this.wrong_choices = 0;
         this.wrong_choices_limit = 6;
         current_word = new ArrayList<Character>();
@@ -83,7 +84,7 @@ public class Game {
         createPositionMaps();
     }
 
-    public void pickLetter(int index, Character choice) throws ChoiceException, ArithmeticException {
+    public Boolean pickLetter(int index, Character choice) throws ChoiceException, ArithmeticException {
 
         try {
             if (index < 0 || index >= word_size)
@@ -96,13 +97,16 @@ public class Game {
                     if (previous != '_')
                         throw new LetterAlreadyFound();
 
-                    if (right_letter == choice)
+                    if (right_letter == choice) {
                         correctChoice(index, choice);
-                    else
+                        choices+=1;
+                        return true;
+                    }
+                    else {
                         wrongChoice(index, choice);
-
-                    System.out.println(wrong_choices + " round ended");
-                    return;
+                        choices+=1;
+                        return false;
+                    }
                 }
             }
             throw new LetterException();
@@ -173,6 +177,8 @@ public class Game {
 
         wrong_choices+=1;
         printSets();
+        System.out.println(chosen_word);
+
         System.out.println("Wrong choice!");
         System.out.println("Score " + score);
 
@@ -190,11 +196,37 @@ public class Game {
         }
     }
 
-    public void printCurrentWord(){
-        for (int i = 0; i <word_size; i++) {
-            System.out.print(current_word.get(i));
+    public int getChoices(){
+        return this.choices;
+    }
+    public int getWrongChoices(){
+        return this.wrong_choices;
+    }
+    public int getScore(){
+        return this.score;
+    }
+    public ArrayList<Character> getCurrent_word(){
+        return new ArrayList<Character>(current_word);
+    }
+    public int getWordsRemaining(){
+        return candidates.size();
+    }
+    public String getChosenWord() { return chosen_word; }
+
+
+    public int gameStatus(){
+        System.out.println(wrong_choices);
+        if (wrong_choices == 6) {
+            for (int i = 0; i < current_word.size(); i++) {
+                if (current_word.get(i) == '_') return -1;
+            }
         }
-        System.out.println();
+        else {
+            for (int i=0; i<current_word.size(); i++) {
+                if (current_word.get(i) == '_') return 0;
+            }
+        }
+        return  1;
     }
 
     public void startGame() throws Exception {
@@ -202,22 +234,27 @@ public class Game {
         while (wrong_choices != wrong_choices_limit) {
 
             try {
-                printSets();
-                System.out.println("Word is " + chosen_word);
-                System.out.print("Current word is ");
-                printCurrentWord(); 
-                BufferedReader bi = new BufferedReader(new InputStreamReader(System.in));
+//                printSets();
+//                System.out.println("Word is " + chosen_word);
+//                System.out.print("Current word is ");
+//                printCurrentWord();
+//                BufferedReader bi = new BufferedReader(new InputStreamReader(System.in));
 
-                String[] input_strings = bi.readLine().split("\\s");
-                int ind = Integer.parseInt(input_strings[0]);
-                Character ch = input_strings[1].charAt(0);
-                pickLetter(ind, ch);
+//                String[] input_strings = bi.readLine().split("\\s");
+//                int ind = Integer.parseInt(input_strings[0]);
+//                Character ch = input_strings[1].charAt(0);
+//                pickLetter(ind, ch);
 
             } catch (Exception e) {
                 throw e;
             }
 
         }
+    }
+
+
+    public LinkedHashMap<Character, ArrayList<String>> getPositionMaps(int index){
+        return position_maps.get(index);
     }
 
 }

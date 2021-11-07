@@ -13,10 +13,14 @@ public class HelloApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 600);
 
-        stage.setTitle("Hello!");
+        stage.setTitle("Medialab Hangman");
         stage.setResizable(false);
 //        stage.setFullScreen(true);
 
+
+
+
+        scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         stage.setScene(scene);
 
         stage.show();

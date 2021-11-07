@@ -1,0 +1,26 @@
+* {
+    -fx-font: 15px "Monospace";
+
+}
+
+.menu-bar {
+    -fx-height: 100px;
+}
+
+.button {
+    -fx-font: 20px "Monospace";
+
+    -fx-border-radius: 30px;
+    -fx-background-color: "#0dba86";
+    -fx-text-fill: white;
+
+}
+
+.button:hover {
+    -fx-cursor: hand;
+
+}
+
+.label {
+    -fx-font: 50px "Monospace";
+}
