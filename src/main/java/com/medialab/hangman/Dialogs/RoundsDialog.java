@@ -48,7 +48,7 @@ public class RoundsDialog {
 
     public void show(){
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/score.png")); }
+        try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/hangman.png")); }
         catch( Exception e){}
         stage.getIcons().add(img);
 

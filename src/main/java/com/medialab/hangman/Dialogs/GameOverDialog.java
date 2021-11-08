@@ -21,7 +21,7 @@ public class GameOverDialog {
 
     public void show(){
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/fail.png")); }
+        try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/hangman.png")); }
         catch( Exception e){}
         stage.getIcons().add(img);
 

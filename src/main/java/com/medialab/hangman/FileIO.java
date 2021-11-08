@@ -62,10 +62,10 @@ public class FileIO {
                 words.add(w);
             }
             d.loadFromWordList(words);
+            dict_reader.close();
         } catch (Exception e) {
             ldop.setStatusAndMsg(1, e.getMessage(), null);
         }
-        dict_reader.close();
 
         return ldop;
 

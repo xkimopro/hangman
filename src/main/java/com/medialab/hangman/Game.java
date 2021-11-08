@@ -184,6 +184,7 @@ public class Game {
 
     }
 
+
     public void printSets() {
         for (int pos = 0; pos < word_size; pos++) {
             System.out.println("Position " + (pos));
@@ -212,6 +213,7 @@ public class Game {
         return candidates.size();
     }
     public String getChosenWord() { return chosen_word; }
+    public Dictionary getDictionary() { return dictionary; }
 
 
     public int gameStatus(){

@@ -16,12 +16,12 @@ public class ShowSolutionDialog {
         alert.setHeaderText("Game is over");
         alert.setContentText("The answer is: "  + answer + "\nYou have lost the game because you 've seen the selected word");
         alert.setWidth(200);
-        alert.setHeight(200);
+        alert.setHeight(250);
     }
 
     public void show(){
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/fail.png")); }
+        try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/hangman.png")); }
         catch( Exception e){}
         stage.getIcons().add(img);
 

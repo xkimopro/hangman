@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<Pane maxHeight="500.0" maxWidth="500.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.medialab.hangman.HelloController">
+<Pane maxHeight="500.0" maxWidth="500.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.medialab.hangman.GameApplicationController">
    <children>
       <MenuBar prefHeight="26.0" prefWidth="600.0">
         <menus>
@@ -12,14 +12,14 @@
 
               <items>
               <MenuItem mnemonicParsing="false" onAction="#startGame" text="Start" />
-                  <MenuItem mnemonicParsing="false" text="Load" />
-                  <MenuItem mnemonicParsing="false" text="Create" />
+                  <MenuItem onAction="#showLoadDictionary"  mnemonicParsing="false" text="Load" />
+                  <MenuItem onAction="#createNewDictionary" mnemonicParsing="false" text="Create" />
                   <MenuItem onAction="#exitGame" mnemonicParsing="false" text="Exit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Details">
             <items>
-              <MenuItem mnemonicParsing="false" text="Dictionary" />
+              <MenuItem onAction="#showDictionaryStats" mnemonicParsing="false" text="Dictionary" />
                   <MenuItem onAction="#showFiveLastRounds" mnemonicParsing="false" text="Rounds" />
                   <MenuItem onAction="#showSolution" mnemonicParsing="false" text="Solution" />
             </items>

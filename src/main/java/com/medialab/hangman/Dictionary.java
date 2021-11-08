@@ -20,7 +20,7 @@ public class Dictionary {
 
         for (int i = 0; i < words.size(); i++) {
             String cap_word = words.get(i).toUpperCase();
-            String filt_word = cap_word.replaceAll("[^a-zA-Z0-9]", "");
+            String filt_word = cap_word.replaceAll("[^a-zA-Z]", "");
             words.set(i, filt_word);
         }
         words.removeIf(e -> e.length() < 6);
@@ -74,7 +74,6 @@ public class Dictionary {
         } catch (Exception e) {
             throw e;
         }
-
     }
 
     public void loadFromWordList(ArrayList<String> word_list) throws DictionaryException {
@@ -85,7 +84,31 @@ public class Dictionary {
         } catch (Exception e) {
             throw e;
         }
+    }
 
+    public HashMap<String,Integer> findStatsPerWordSize(){
+        HashMap<String,Integer> hm = new HashMap<String, Integer>();
+        hm.put("Small", 0);
+        hm.put("Medium", 0);
+        hm.put("Large", 0);
+
+
+        for (String w : words){
+            int w_size = w.length();
+            if (0 <= w_size && w_size <= 6){
+                    hm.put("Small", hm.get("Small") + 1);
+            }
+            else if (7 <= w_size && w_size <= 9) {
+                hm.put("Medium", hm.get("Medium") + 1);
+
+            }
+            else {
+                hm.put("Large", hm.get("Large") + 1);
+            }
+
+        }
+        System.out.println(hm.toString());
+        return hm;
     }
 
     public String pickWord() {
