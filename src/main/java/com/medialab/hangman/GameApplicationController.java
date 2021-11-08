@@ -1,13 +1,11 @@
 package com.medialab.hangman;
 
 import com.medialab.hangman.Dialogs.*;
-import com.medialab.hangman.Messages.LoadDictionaryOp;
 import com.medialab.hangman.Messages.LoadStatsOp;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.*;
@@ -16,18 +14,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-
-import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Optional;
+
+
 
 public class GameApplicationController {
     @FXML
@@ -70,24 +62,17 @@ public class GameApplicationController {
     private Image image;
     private ImageView imageView;
     private  Dictionary d;
+    private ArrayList<Character> current_word;
 
     @FXML
     protected void initialize(){
-
         mainPane.setDisable(true);
-
         pickLetterButton.setVisible(false);
         choiceDescriber.setVisible(false);
         scoreLabel.setVisible(false);
         remainingWordsLabel.setVisible(false);
         ratioLabel.setVisible(false);
         choicesLabel.setVisible(false);
-
-
-//        positionMapsPane.setFocusTraversable(false);
-
-//        ActionEvent ev = new ActionEvent();
-//        this.startGame(ev);
     }
 
     @FXML
@@ -99,21 +84,9 @@ public class GameApplicationController {
             return;
         }
         if (gameRunning) return;
-
-
-        mainPane.setDisable(false);
-
         initializeGameState();
-
-        ArrayList<Character> current_word = g.getCurrent_word();
-        word_size = current_word.size();
-        pickLetterButton.setVisible(true);
-        choiceDescriber.setVisible(true);
-        scoreLabel.setVisible(true);
-        remainingWordsLabel.setVisible(true);
-        ratioLabel.setVisible(true);
-        choicesLabel.setVisible(true);
-
+        current_word = g.getCurrent_word();
+        renderMiscellaneous();
         if (cells != null) {
             for (TextField tf: cells) tf.setVisible(false);
             cells.clear();
@@ -121,52 +94,16 @@ public class GameApplicationController {
         if (imageView != null) {
             imageView.setVisible(false);
         }
-
         gameRunning = true;
-
-        HBox box = new HBox();
-        for (int i=0; i< word_size; i++){
-            TextField letterCell = new TextField();
-            letterCell.setPrefWidth(cellWidth);
-            letterCell.setPrefHeight(cellHeight);
-
-            letterCell.setEditable(false);
-            letterCell.setAlignment(Pos.CENTER);
-            letterCell.setFont(new Font(15));
-            letterCell.setCursor(Cursor.HAND);
-            box.getChildren().add(letterCell);
-            cells.add(letterCell);
-
-        }
-
-        box.setSpacing(10);
-
-
-        wordPresentationPane.getChildren().add(box);
-        paneHeight = wordPresentationPane.getHeight();
-        paneWidth = wordPresentationPane.getWidth();
-        hboxWidth = ((cellWidth+cellSpacing) * word_size - cellSpacing) ;
-
-
-        double leftOffset = (paneWidth - hboxWidth)/2;
-        wordPresentationPane.setTopAnchor(box, 2*paneHeight/3 );
-        wordPresentationPane.setLeftAnchor(box, leftOffset);
-
-
-
-        cells.get(selectedCellIndex).requestFocus();
-
+        renderWordPresentationPane();
         renderPossibleCharacters();
         renderHangedMan();
         renderStats();
 
         // OnFocusChange Listener
         Scene scene = positionMapsPane.getScene();
-
         scene.focusOwnerProperty().addListener(
                 (prop, oldNode, newNode) -> {
-
-
                     for (int i=0; i<cells.size(); i++){
                         if (cells.get(i).isFocused() && selectedCellIndex != i) {
                             choiceDescriber.setText("Pick Letter _ For Position "+String.valueOf(i+1));
@@ -175,33 +112,58 @@ public class GameApplicationController {
                             return;
                         }
                     }
-
-
-
                 });
+    }
+
+    public void renderWordPresentationPane(){
+        HBox box = new HBox();
+        box.setSpacing(10);
+        for (int i=0; i< word_size; i++){
+            TextField letterCell = new TextField();
+            letterCell.setPrefWidth(cellWidth);
+            letterCell.setPrefHeight(cellHeight);
+            letterCell.setEditable(false);
+            letterCell.setAlignment(Pos.CENTER);
+            letterCell.setFont(new Font(15));
+            letterCell.setCursor(Cursor.HAND);
+            box.getChildren().add(letterCell);
+            cells.add(letterCell);
+        }
+
+        wordPresentationPane.getChildren().add(box);
+        paneHeight = wordPresentationPane.getHeight();
+        paneWidth = wordPresentationPane.getWidth();
+        hboxWidth = ((cellWidth+cellSpacing) * word_size - cellSpacing) ;
+        double leftOffset = (paneWidth - hboxWidth)/2;
+        wordPresentationPane.setTopAnchor(box, 2*paneHeight/3 );
+        wordPresentationPane.setLeftAnchor(box, leftOffset);
+        cells.get(selectedCellIndex).requestFocus();
+    }
 
 
-
+    public void renderMiscellaneous(){
+        mainPane.setDisable(false);
+        word_size = current_word.size();
+        pickLetterButton.setVisible(true);
+        choiceDescriber.setVisible(true);
+        scoreLabel.setVisible(true);
+        remainingWordsLabel.setVisible(true);
+        ratioLabel.setVisible(true);
+        choicesLabel.setVisible(true);
     }
 
     public void renderPossibleCharacters(){
-
-//        System.out.println(selectedCellIndex);
         LinkedHashMap<Character, ArrayList<String>> lhm = g.getPositionMaps(selectedCellIndex);
-
         if (lv!=null) lv.getItems().clear();
         bl = new ArrayList<Button>();
         for (Character c: lhm.keySet()){
-
             Button b = new Button(c.toString());
             b.setPrefWidth(30);
             b.setOnAction(event -> pickLetter(c));
-
             Font f = new Font("Monospaced"  , 15);
             b.setAlignment(Pos.CENTER);
             b.setFont(f);
             bl.add(b);
-
         }
         ObservableList<Button> ol = FXCollections.observableList(bl);
         lv = new ListView<Button>(ol);
@@ -221,12 +183,7 @@ public class GameApplicationController {
             int index = selectedCellIndex;
 
             try {
-                if (g.pickLetter(index,c)){
-
-                }
-                else {
-
-                }
+                g.pickLetter(index,c); // Returns Boolean ( Correct , False )
                 ArrayList<Character> curr = g.getCurrent_word();
                 for (int i=selectedCellIndex; i<curr.size(); i++){
                     if (curr.get(i) == '_') {
@@ -235,14 +192,12 @@ public class GameApplicationController {
                         break;
                     }
                 }
-
                 String row;
                 switch (g.gameStatus()) {
                     case -1:
                         gameLost();
                         break;
                     case 0:
-
                         renderPossibleCharacters();
                         renderHangedMan();
                         renderCellsBasedOnCurrentWord();
@@ -253,7 +208,6 @@ public class GameApplicationController {
                         d.show();
                         renderStats();
                         stopGame();
-
                         row = g.getChosenWord() + "," + g.getChoices() + ",PLAYER";
                         FileIO.appendToStatsFile(row);
                         break;
@@ -276,23 +230,18 @@ public class GameApplicationController {
         if (choices != 0)  ratio = ((double)(choices-wrong_choices)/(double) choices)*100;
         else ratio = 0.00;
         String ratio_str = String.format("%.2f",ratio);
-
         scoreLabel.setText("Score: " + score);
         remainingWordsLabel.setText("Words Remaining: " + words_remaining);
         ratioLabel.setText("Success Ratio: "+ String.valueOf(ratio_str) + "%");
         choicesLabel.setText("Attempts: " + choices);
-
-
     }
 
     public void renderHangedMan(){
         if (imageView!=null) imageView.setVisible(false);
-
         try { image = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/hang_"+(g.getWrongChoices()+1)+".png")); }
         catch( Exception e){}
         imageView = new ImageView(image);
         imageView.setX(paneWidth/2.3);
-
         wordPresentationPane.getChildren().add(imageView);
     }
 
@@ -300,21 +249,17 @@ public class GameApplicationController {
     public void renderCellsBasedOnCurrentWord(){
         ArrayList<Character> curr = g.getCurrent_word();
         for (int i=0; i< curr.size(); i++){
-            if (curr.get(i) == '_'){
-                continue;
-            }
+            if (curr.get(i) == '_') continue;
             else {
                 TextField tf = cells.get(i);
                 tf.setText(curr.get(i).toString());
                 tf.setDisable(true);
                 tf.setOpacity(0.8);
-
             }
         }
     }
 
     public void pickLetter(Character c){
-
         Character position = choiceDescriber.getText().charAt(choiceDescriber.getText().length()-1);
         String newText = "Pick Letter " + c.toString() + " For Position " + position.toString();
         choiceDescriber.setText(newText);
@@ -335,16 +280,10 @@ public class GameApplicationController {
         }
     }
 
-    public void gameWon(){
-
-    }
-
     public void stopGame(){
         gameRunning = false;
-
         mainPane.setDisable(true);
         imageView.setOpacity(0.4);
-
     }
 
 
@@ -358,9 +297,7 @@ public class GameApplicationController {
                 d.show();
                 gameLost();
                 stopGame();
-
         }
-
     }
 
     public void showFiveLastRounds(){
@@ -375,7 +312,6 @@ public class GameApplicationController {
             dnl.show();
             return;
         }
-
         ShowDictionaryStatsDialog sd = new ShowDictionaryStatsDialog(d.findStatsPerWordSize());
         sd.show();
     }
@@ -387,11 +323,5 @@ public class GameApplicationController {
     }
     public void createNewDictionary(){
         CreateDictionaryDialog cdd = new CreateDictionaryDialog();
-
     }
-
-
-
-
-
 }

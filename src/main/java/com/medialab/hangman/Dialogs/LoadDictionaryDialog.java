@@ -19,15 +19,8 @@ public class LoadDictionaryDialog {
 
     public LoadDictionaryDialog() {
         td = new TextInputDialog();
-
-        // s etHeaderText
         td.setHeaderText("Load Dictionary");
         td.setContentText("Enter DictionaryID: ");
-
-
-
-        // create a button
-
     }
 
     public Dictionary show(){

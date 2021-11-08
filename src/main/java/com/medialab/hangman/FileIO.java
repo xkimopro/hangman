@@ -19,25 +19,19 @@ public class FileIO {
 
 
     public static NewDictionaryOp createDictionaryFile(String dict_id, String open_library_id) {
-
         int error_code = 0;
         String filename = "hangman_" + dict_id + ".txt";
         String msg = "File " + filename + " created successfully";
         Dictionary d = new Dictionary();
-
         NewDictionaryOp ndop = new NewDictionaryOp(error_code, msg, d);
-
         try {
             d.createFromOpenLibraryId(open_library_id);
             ArrayList<String> words = d.getWords();
-
             FileWriter myWriter = new FileWriter(dictionaries_path + filename);
             for (String w : words) {
                 myWriter.write(w + "\n");
             }
-
             myWriter.close();
-
         } catch (Exception e) {
             ndop.setStatusAndMsg(1, e.getMessage() , null);
         }
@@ -45,12 +39,10 @@ public class FileIO {
     }
 
     public static LoadDictionaryOp loadNewDictionaryFile(String dict_id) {
-
         int error_code = 0;
         String filename = "hangman_" + dict_id + ".txt";
         String msg = "File " + filename + " loaded successfully";
         Dictionary d = new Dictionary();
-
         LoadDictionaryOp ldop = new LoadDictionaryOp(error_code, msg, d);
         File dict_file = new File(dictionaries_path + filename);
         Scanner dict_reader = null;
@@ -68,26 +60,9 @@ public class FileIO {
         }
 
         return ldop;
-
-        // try {
-        // d.createFromOpenLibraryId(open_library_id);
-        // ArrayList<String> words = d.getWords();
-
-        // FileWriter myWriter = new FileWriter(dictionaries_path + filename);
-        // for (String w : words) {
-        // myWriter.write(w + "\n");
-        // }
-
-        // myWriter.close();
-
-        // } catch (Exception e) {
-        // ldop.setStatusAndMsg(1, e.getMessage());
-        // }
-        // return ldop;
     }
 
     public static void appendToStatsFile(String newLine) throws Exception{
-
         try {
             Writer output;
             output = new BufferedWriter(new FileWriter(statsFile, true));
@@ -97,17 +72,13 @@ public class FileIO {
         catch (Exception e){
             throw e;
         }
-
     }
 
     public static LoadStatsOp readStatsFile(){
-
         int error_code = 0;
         String msg = "Stats File read and parsed successfully";
         ArrayList<String> rows = new ArrayList<String>();
-
         LoadStatsOp lsop = new LoadStatsOp(error_code, msg, rows);
-
         File stats_file = new File(statsFile);
         Scanner stats_reader = null;
         try {
@@ -122,7 +93,6 @@ public class FileIO {
         }
         stats_reader.close();
         return lsop;
-
     }
 
 

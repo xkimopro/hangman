@@ -16,17 +16,12 @@ public class GameApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 600, 600);
         stage.setTitle("Medialab Hangman");
         stage.setResizable(false);
-//        stage.setFullScreen(true);
-
-
         Image img = null;
         try { img = new Image(new FileInputStream("src/main/resources/com/medialab/hangman/img/hangman.png")); }
         catch( Exception e){}
         stage.getIcons().add(img);
-
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         stage.setScene(scene);
-
         stage.show();
     }
 

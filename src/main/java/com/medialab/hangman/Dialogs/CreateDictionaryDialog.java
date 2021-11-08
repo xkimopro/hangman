@@ -24,7 +24,6 @@ public class CreateDictionaryDialog {
         Dialog<Pair<String, String>> dialog = new Dialog<>();
         dialog.setTitle("New Dictionary");
 
-        // Set the button types.
         ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
 
@@ -49,7 +48,6 @@ public class CreateDictionaryDialog {
         stage.getIcons().add(img);
 
 
-        // Convert the result to a username-password-pair when the login button is clicked.
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == okButtonType) {
                 return new Pair<>(open_library_id.getText(), dictionary_id.getText());

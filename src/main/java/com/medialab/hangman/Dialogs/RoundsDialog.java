@@ -1,6 +1,5 @@
 package com.medialab.hangman.Dialogs;
 
-import com.medialab.hangman.FileIO;
 import com.medialab.hangman.Messages.LoadStatsOp;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;

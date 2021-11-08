@@ -14,19 +14,15 @@ import com.medialab.hangman.Exceptions.GameExceptions.*;
 
 class CharacterFrequencyComparator implements Comparator<Character> {
     Map<Character, ArrayList<String>> base;
-
     public CharacterFrequencyComparator(Map<Character, ArrayList<String>> base) {
         this.base = base;
     }
-
-    // Note: this comparator imposes orderings that are inconsistent with
-    // equals.
     public int compare(Character a, Character b) {
         if (base.get(a).size() >= base.get(b).size()) {
             return -1;
         } else {
             return 1;
-        } // returning 0 would merge keys
+        }
     }
 }
 
@@ -38,6 +34,30 @@ public class Game {
     ArrayList<String> candidates;
     ArrayList<LinkedHashMap<Character, ArrayList<String>>> position_maps;
     ArrayList<Character> current_word;
+
+
+    public int getChoices(){
+        return this.choices;
+    }
+    public int getWrongChoices(){
+        return this.wrong_choices;
+    }
+    public int getScore(){
+        return this.score;
+    }
+    public ArrayList<Character> getCurrent_word(){
+        return new ArrayList<Character>(current_word);
+    }
+    public int getWordsRemaining(){
+        return candidates.size();
+    }
+    public String getChosenWord() { return chosen_word; }
+    public Dictionary getDictionary() { return dictionary; }
+    public LinkedHashMap<Character, ArrayList<String>> getPositionMaps(int index){
+        return position_maps.get(index);
+    }
+
+
 
     public void createPositionMaps() {
         position_maps = new ArrayList<LinkedHashMap<Character, ArrayList<String>>>();
@@ -196,26 +216,6 @@ public class Game {
 
         }
     }
-
-    public int getChoices(){
-        return this.choices;
-    }
-    public int getWrongChoices(){
-        return this.wrong_choices;
-    }
-    public int getScore(){
-        return this.score;
-    }
-    public ArrayList<Character> getCurrent_word(){
-        return new ArrayList<Character>(current_word);
-    }
-    public int getWordsRemaining(){
-        return candidates.size();
-    }
-    public String getChosenWord() { return chosen_word; }
-    public Dictionary getDictionary() { return dictionary; }
-
-
     public int gameStatus(){
         System.out.println(wrong_choices);
         if (wrong_choices == 6) {
@@ -231,32 +231,12 @@ public class Game {
         return  1;
     }
 
-    public void startGame() throws Exception {
-
-        while (wrong_choices != wrong_choices_limit) {
-
-            try {
-//                printSets();
-//                System.out.println("Word is " + chosen_word);
-//                System.out.print("Current word is ");
-//                printCurrentWord();
-//                BufferedReader bi = new BufferedReader(new InputStreamReader(System.in));
-
-//                String[] input_strings = bi.readLine().split("\\s");
-//                int ind = Integer.parseInt(input_strings[0]);
-//                Character ch = input_strings[1].charAt(0);
-//                pickLetter(ind, ch);
-
-            } catch (Exception e) {
-                throw e;
-            }
-
-        }
-    }
 
 
-    public LinkedHashMap<Character, ArrayList<String>> getPositionMaps(int index){
-        return position_maps.get(index);
-    }
+
+
+
+
+
 
 }
